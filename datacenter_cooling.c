@@ -1,4 +1,6 @@
 /*
+ * AUTHOR: @andreip Andrei-Niculae Petre
+ *
  * -----
  * RULES
  * -----
