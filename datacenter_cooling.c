@@ -146,11 +146,42 @@ char *visited;
  */
 char *reachable;
 
-/* This is the first of the STRATEGIES section from the above
- * documentation. Please read details there.
+/* Test if two rooms are on the same row. */
+#define SAME_ROW(a, b)    (a / width == b / width)
+
+#define UP(pos)           (pos - width)
+#define DOWN(pos)         (pos + width)
+#define RIGHT(pos)        (pos + 1)
+#define LEFT(pos)         (pos - 1)
+
+/* Can go UP/DOWN/LEFT/RIGHT in the bounds of the datacenter. */
+#define CAN_GO_UP(pos)    (UP(pos) >= 0)
+#define CAN_GO_DOWN(pos)  (DOWN(pos) < width * height)
+#define CAN_GO_RIGHT(pos) (RIGHT(pos) < width * height &&\
+                           SAME_ROW(pos, RIGHT(pos)))
+#define CAN_GO_LEFT(pos)  (LEFT(pos) >= 0 && SAME_ROW(pos, LEFT(pos)))
+
+#define IS_FREE(pos, vector)  (vector[pos] == 0)
+
+/* Signature to be able to call function from anywhere in here. */
+int count_paths(int, int);
+
+/* The first of the STRATEGIES section from the above
+ * documentation. Read details there.
  */
 int path_has_rooms_with_degree_lt_2(int crt) {
   return 0;
+}
+
+int go_into_room(new_room, length) {
+  /* Mark the room as visited. */
+  visited[new_room] = 1;
+  int number_of_paths = count_paths(new_room, length);
+  /* When we return from recursivity we want to cleanup the
+   * visited room, as we may visit it again through a different path.
+   */
+  visited[new_room] = 0;
+  return number_of_paths;
 }
 
 /* @args:
@@ -168,11 +199,22 @@ int count_paths(int crt, int length) {
   if (crt == end && length == path_length)
     return 1;
 
-  /* The path is wrong, stop it early. */
+  /* The DFS path is wrong, stop it early. */
   if (path_has_rooms_with_degree_lt_2(crt))
     return 0;
 
   int number_of_paths = 0;
+  if (CAN_GO_UP(crt) && IS_FREE(UP(crt), visited))
+    number_of_paths += go_into_room(UP(crt), length + 1);
+
+  if (CAN_GO_RIGHT(crt) && IS_FREE(RIGHT(crt), visited))
+    number_of_paths += go_into_room(RIGHT(crt), length + 1);
+
+  if (CAN_GO_DOWN(crt) && IS_FREE(DOWN(crt), visited))
+    number_of_paths += go_into_room(DOWN(crt), length + 1);
+
+  if (CAN_GO_LEFT(crt) && IS_FREE(LEFT(crt), visited))
+    number_of_paths += go_into_room(LEFT(crt), length + 1);
 
   return number_of_paths;
 }
@@ -193,6 +235,8 @@ int main() {
         break;
       case 2:
         start = i;
+        /* We're at the start position from the beginning. */
+        visited[start] = 1;
         break;
       case 3:
         end = i;
