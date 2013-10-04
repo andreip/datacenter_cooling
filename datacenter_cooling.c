@@ -136,7 +136,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int rows, cols, start, end;
+int width, height, start, end, path_length;
 /* Used to keep track of the visited path of the DFS we'll backtrack.
  * Also the unusable rooms will be marked as visited from the start.
  */
@@ -146,15 +146,46 @@ char *visited;
  */
 char *reachable;
 
+/* This is the first of the STRATEGIES section from the above
+ * documentation. Please read details there.
+ */
+int path_has_rooms_with_degree_lt_2(int crt) {
+  return 0;
+}
+
+/* @args:
+ *   crt: the current position where the DFS path has arrived. When
+ *        this reaches the end position, we're done.
+ *   length: the length of the DFS path has to equal the total number
+ *           of rooms we need to go through.
+ *
+ * @return:
+ *   the number of hamiltonian paths (through all our rooms) from start to
+ *   end.
+ */
+int count_paths(int crt, int length) {
+  /* We've found a path. */
+  if (crt == end && length == path_length)
+    return 1;
+
+  /* The path is wrong, stop it early. */
+  if (path_has_rooms_with_degree_lt_2(crt))
+    return 0;
+
+  int number_of_paths = 0;
+
+  return number_of_paths;
+}
+
 int main() {
-  scanf("%d %d\n", &cols, &rows);
+  scanf("%d %d\n", &width, &height);
   int i, crt;
 
   /* Memory for these three arrays holding the world state. */
-  visited = calloc(sizeof(char), rows*cols);
-  reachable = calloc(sizeof(char), rows*cols);
+  visited = calloc(sizeof(char), height * width);
+  reachable = calloc(sizeof(char), height * width);
 
-  for (i = 0; i < cols * rows; ++i) {
+  for (i = 0; i < width * height; ++i) {
     scanf("%d", &crt);
     switch (crt) {
       case 1:
@@ -167,7 +198,14 @@ int main() {
         end = i;
         break;
     }
+
+    /* The number of rooms we need to cover with the paths. */
+    if (crt != 1)
+      ++path_length;
   }
+
+  /* Solve for the number of paths. */
+  printf("%d\n", count_paths(start, 1));
 
   free(visited);
   free(reachable);
