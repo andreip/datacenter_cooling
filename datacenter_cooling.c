@@ -166,13 +166,6 @@ char *reachable;
 /* Signature to be able to call function from anywhere in here. */
 int count_paths(int, int);
 
-/* The first of the STRATEGIES section from the above
- * documentation. Read details there.
- */
-int path_has_rooms_with_degree_lt_2(int crt) {
-  return 0;
-}
-
 int go_into_room(new_room, length) {
   /* Mark the room as visited. */
   visited[new_room] = 1;
@@ -182,6 +175,43 @@ int go_into_room(new_room, length) {
    */
   visited[new_room] = 0;
   return number_of_paths;
+}
+
+/* The first of the STRATEGIES section from the above
+ * documentation. Read details there.
+ */
+int path_has_rooms_with_degree_lt_2(int crt) {
+  int degree, i;
+
+  for (i = 0; i < width * height; ++i) {
+    degree = 0;
+    /* Check that we don't have any rooms with degree one
+     * which we're not next to from the current room we're into.
+     * The hamiltonian path would be impossible to finish because
+     * we would not be able to go into the room (with degree one) and
+     * also exit from it into a different room (as all its neighbours have
+     * been visited, since it's got a degree of one).
+     */
+    if (IS_FREE(i, visited) && i != end) {
+      /* If the _i_ room is neighbour of our current room, then we
+       * might be able to visit it right now, so add a degree to it.
+       */
+      if (CAN_GO_UP(i) && (IS_FREE(UP(i), visited) || UP(i) == crt))
+        ++degree;
+      if (CAN_GO_RIGHT(i) && (IS_FREE(RIGHT(i), visited) || RIGHT(i) == crt))
+        ++degree;
+      if (CAN_GO_DOWN(i) && (IS_FREE(DOWN(i), visited) || DOWN(i) == crt))
+        ++degree;
+      if (CAN_GO_LEFT(i) && (IS_FREE(LEFT(i), visited) || LEFT(i) == crt))
+        ++degree;
+
+      /* The DFS path is wrong, so stop from exploring it any further. */
+      if (degree < 2)
+        return 1;
+    }
+  }
+
+  return 0;
 }
 
 /* @args:
