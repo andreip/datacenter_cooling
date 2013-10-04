@@ -51,6 +51,9 @@
  * paths of exploration. But in order to speedup the DFS exploration,
  * will remove some bad paths using some strategies/heuristics.
  *
+ * I won't be implementing the 2nd strategy though, it's got an
+ * acceptable speed for the big test.
+ *
  * --------------------
  * WORLD REPRESENTATION
  * --------------------
@@ -75,6 +78,7 @@
  * STRATEGIES
  * ----------
  *
+ * (IMPLEMENTED)
  * 1) You want the exploration path of the DFS to not have corners,
  * which means to have a vertex with a degree of one. The degree can be
  * one of UP, DOWN, LEFT, RIGHT.
@@ -94,6 +98,7 @@
  * entered into it from its right already (we can't walk through rooms
  * we've already visited).
  *
+ * (NOT IMPLEMENTED)
  * 2) You can't create cycles in the path, or make some rooms
  * unreachable.
  *
@@ -141,10 +146,6 @@ int width, height, start, end, path_length;
  * Also the unusable rooms will be marked as visited from the start.
  */
 char *visited;
-/* The rooms we can reach from the DOWNmost part, so we don't form bad
- * paths. Check the STRATEGIES section.
- */
-char *reachable;
 
 /* Test if two rooms are on the same row. */
 #define SAME_ROW(a, b)    (a / width == b / width)
@@ -255,7 +256,6 @@ int main() {
 
   /* Memory for these three arrays holding the world state. */
   visited = calloc(sizeof(char), height * width);
-  reachable = calloc(sizeof(char), height * width);
 
   for (i = 0; i < width * height; ++i) {
     scanf("%d", &crt);
@@ -282,7 +282,6 @@ int main() {
   printf("%d\n", count_paths(start, 1));
 
   free(visited);
-  free(reachable);
 
   return 0;
 }
